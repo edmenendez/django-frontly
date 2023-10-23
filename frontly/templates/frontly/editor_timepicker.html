@@ -1,0 +1,52 @@
+{% spaceless %}
+{# This widget is always in edit mode! #}
+
+{% if kwargs.label %}
+    <label for="{{ fe_field_id }}">{{ kwargs.label }}</label>
+{% endif %}
+
+<div
+    id="{{ fe_field_id }}-div"
+    class="timepicker-ui"  {# override all the classes #}
+    hx-post="{% url 'frontly:editor' %}"
+    hx-swap="none"
+    hx-trigger="accept"
+    hx-debounce="100ms"
+    hx-vals="js:{
+        content: document.getElementById('{{ fe_field_id }}').textContent,
+        value: document.getElementById('{{ fe_field_id }}').value,
+        widget: 'input',
+        frontlyEditor: 1,
+        fe_field: '{{ fe_field }}',
+        fe_id: {{ fe_id }},
+    }"
+    {% for kwarg, value in kwargs.items %}
+        {{ kwarg }}="{{ value }}"
+    {% endfor %}>
+    <input
+        id="{{ fe_field_id }}"
+        type="text"
+        name="{{ fe_field }}"
+        class="timepicker-ui-input"
+        value="{{ content|date:"h:i A" }}" />
+</div>
+
+<script>
+    function init_{{ fe_var }}() {
+        let element = document.getElementById('{{ fe_field_id }}-div');
+        let options = {incrementMinutes: 15};
+        let newTimepicker = new window.tui.TimepickerUI(
+            element, options);
+        newTimepicker.create();
+        element.addEventListener('accept', (event) => {
+            var changeEvent = new Event('change', {
+                'bubbles': true,
+                'cancelable': true
+            });
+            event.target.dispatchEvent(changeEvent);
+        });
+    }
+    init_{{ fe_var }}();
+</script>
+
+{% endspaceless %}

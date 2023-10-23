@@ -1,0 +1,46 @@
+{% spaceless %}
+{% if not is_editing %}
+    {{ kwargs|json_script:fe_field_id }}
+{% endif %}
+<div
+    id="{{ fe_field_id }}-div"
+    hx-post="{% url 'frontly:editor' %}"
+    hx-swap="outerHTML"
+    hx-trigger="dblclick"
+    {% if is_editing %}hx-on="htmx:beforeSwap: document.getElementById('{{ fe_field_id }}').remove()"{% endif %}
+    hx-vals="js:{
+        content: document.getElementById('{{ fe_field_id }}-div').textContent,
+        value: document.getElementById('frontlyEditor') ? document.getElementById('frontlyEditor').value : null,
+        widget: 'input',
+        frontlyEditor: document.getElementById('frontlyEditor') ? document.getElementById('frontlyEditor').getAttribute('frontlyEditor') : '',
+        fe_field: '{{ fe_field }}',
+        fe_id: {{ fe_id }},
+        kwargs: JSON.parse(document.getElementById('{{ fe_field_id }}').textContent)
+    }"
+    {% for kwarg, value in kwargs.items %}
+        {{ kwarg }}="{{ value }}"
+    {% endfor %}>
+
+{% if is_editing %}
+    <input id="frontlyEditor" frontlyEditor="1" type="text" value="{{ content|safe }}">
+{% else %}{{ content|safe|default:default }}{% endif %}
+</div>
+
+{% if is_editing %}
+<script>
+    var frontlyEditor = document.getElementById('frontlyEditor');
+    frontlyEditor.focus();
+
+    var dblClick = new MouseEvent('dblclick', {
+        bubbles: true,
+        cancelable: true,
+    });
+
+    frontlyEditor.addEventListener('blur', function(event) {
+        document.getElementById('{{ fe_field_id }}-div').dispatchEvent(dblClick)
+    });
+
+    document.getElementById('frontlyEditor').addEventListener('dblclick', event => event.stopPropagation());
+</script>
+{% endif %}
+{% endspaceless %}

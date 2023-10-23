@@ -1,0 +1,90 @@
+{% load static %}{% spaceless %}
+{% if not is_editing %}
+    {{ kwargs|json_script:fe_field_id }}
+{% endif %}
+<form
+    id="{{ fe_field_id }}-form"
+    hx-encoding="multipart/form-data"
+    hx-post="{% url 'frontly:editor' %}"
+    hx-swap="outerHTML"
+    {% if not is_editing %}hx-trigger="dblclick"{% endif %}
+    {% if is_editing %}hx-on="htmx:beforeSwap: document.getElementById('{{ fe_field_id }}').remove()"{% endif %}
+    hx-vals="js:{
+        widget: 'img',
+        default: '{{ default }}',
+        frontlyEditor: document.getElementById('frontlyEditor') ? document.getElementById('frontlyEditor').getAttribute('frontlyEditor') : '',
+        fe_field: '{{ fe_field }}',
+        fe_id: {{ fe_id }},
+        kwargs: document.getElementById('{{ fe_field_id }}').textContent
+    }">
+
+{% if is_editing %}
+    <img
+        id="imagePreview"
+        src="{{ content|default:default }}"
+        {% for kwarg, value in kwargs.items %}
+            {{ kwarg }}="{{ value }}"
+        {% endfor %}
+        style="width: 35%"
+    >
+    <p>{{ help_text }}</p>
+    <input id="frontlyEditor" name="image" frontlyEditor="1" type="file" accept="image/*" class="button button-radius">
+    <button
+        id="saveBtn"
+        name="action"
+        value="saveBtn"
+        class="button button-sm button-radius button-border-2 button-outline-very-peri"> <i class="fa-regular fa-floppy-disk"></i> Save</button>
+    <button
+        name="action"
+        value="cancelBtn"
+        class="button button-sm button-radius button-border-2 button-outline-very-peri"> <i class="fa-regular fa-undo"></i> Cancel</button><br>
+    <button
+        name="action"
+        value="clearBtn"
+        class="button button-sm button-radius button-border-2 button-outline-very-peri"> <i class="fa-regular fa-ban"></i> Clear Image</button>
+
+{% else %}
+<div class="editable">
+    <img
+        {% if content %}
+            src="{{ MEDIA_URL }}{{ content.url|default:content|default:default }}"
+        {% else %}
+            src="{{ default }}"
+        {% endif %}
+        {% for kwarg, value in kwargs.items %}
+            {{ kwarg }}="{{ value }}"
+        {% endfor %}
+    >
+</div>
+{% endif %}
+</form>
+
+{% if is_editing %}
+<script>
+    var frontlyEditor = document.getElementById('frontlyEditor');
+    frontlyEditor.focus();
+
+    document.getElementById('frontlyEditor').addEventListener('change', function() {
+        var fileInput = this;
+        var imagePreview = document.getElementById('imagePreview');
+
+        if (fileInput.files && fileInput.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                // Display the image preview
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+
+            // Read the selected file as a Data URL
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            // If no file is selected, hide the image preview
+            imagePreview.src = '#';
+            imagePreview.style.display = 'none';
+        }
+    });
+</script>
+{% endif %}
+{% endspaceless %}

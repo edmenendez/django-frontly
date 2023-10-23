@@ -1,0 +1,64 @@
+{% load static %}{% spaceless %}
+{% if not is_editing %}
+    {{ kwargs|json_script:fe_field_id }}
+{% endif %}
+<div
+    id="{{ fe_field_id }}-div"
+    hx-post="{% url 'frontly:editor' %}"
+    hx-swap="outerHTML"
+    hx-trigger="dblclick"
+    {% if is_editing %}hx-on="htmx:beforeSwap: document.getElementById('{{ fe_field_id }}').remove()"{% endif %}
+    hx-vals="js:{
+        content: document.getElementById('{{ fe_field_id }}-div').innerHTML,
+        value: event.target.value,
+        widget: 'textarea',
+        frontlyEditor: event.target.getAttribute('frontlyEditor') || '',
+        fe_field: '{{ fe_field }}',
+        fe_id: {{ fe_id }},
+        kwargs: JSON.parse(document.getElementById('{{ fe_field_id }}').textContent)
+    }"
+    {% for kwarg, value in kwargs.items %}
+        {{ kwarg }}="{{ value }}"
+    {% endfor %}>
+{% if is_editing %}
+    <input id="frontlyEditor" type="hidden" value="{{ content }}" frontlyEditor="1">
+    <trix-editor input="frontlyEditor" autofocus></trix-editor>
+    <button id="saveBtn" class="button button-sm button-radius button-border-2 button-outline-very-peri"> <i class="fa-regular fa-floppy-disk"></i> Save</button>
+    <script>
+        var frontlyEditor = document.getElementById('frontlyEditor');
+        var dblClick = new MouseEvent('dblclick', {
+            bubbles: true,
+            cancelable: true,
+        });
+
+        var element = document.querySelector('trix-editor')
+        if (element) {
+            element.addEventListener('blur', function(event) {
+                if (!event.relatedTarget || !event.relatedTarget.className.includes('trix')) {
+                    frontlyEditor.dispatchEvent(dblClick);
+                }
+            });
+        }
+        document.getElementById('saveBtn').addEventListener('click', function(event) {
+            frontlyEditor.dispatchEvent(dblClick);
+        })
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'trix/trix.css' %}">
+    <script type="text/javascript" src="{% static 'trix/trix_2.0.0.umd.min.js' %}"></script>
+
+    <script>
+        document.addEventListener("trix-initialize", function (event) {
+            // The Trix editor instance can be accessed using event.target
+            const trixEditor = event.target;
+            const toolbarID = trixEditor.getAttribute("toolbar");
+
+            setTimeout(function() {
+                trixEditor.addEventListener("dblclick", event => event.stopPropagation());
+                document.getElementById(toolbarID).addEventListener("dblclick", event => event.stopPropagation());
+            }, 1)
+        });
+    </script>
+{% else %}{{ content|safe|default:default }}{% endif %}
+</div>
+{% endspaceless %}
