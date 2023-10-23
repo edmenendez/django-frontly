@@ -1,27 +1,4 @@
-Frontly Readme
-
-The easiest way to build views for Django. Without building any views!
-
-Frontly makes is super simple to edit your Django models in the front-end. Supporting two modes. An "admin" style mode where you can allow certain users to edit data in the front-end view and a user mode.
-
-
-Although you can put all the methods directly into the model, you may want to separate the methods and place them in a view_frontly.py file and then include those in your models instead.
-
-def frontly_permission_check
-
-
-How to handle errors and data validation?
-
-
-
-
-
-
-* * *
-
-
-
-![](https://s3.us-east-1.amazonaws.com/digitalhaiku.mooo.com/frontly-demo-1.gif)
+![](frontly-demo-1.gif)
 
 # Frontly
 
@@ -40,7 +17,7 @@ Frontly allows you to make front-end changes to text and images without building
 <h1>{% fr_input request.user instance=author field="name" default="Jordan Doe"%}<h1>
 ```
 
-This will display what's in `auther.name` by default or, if you have the correct permissions, it will allow you to double-click and edit the field.
+This will display what's in `auther.name` by default and, if you have the correct permissions, it will allow you to double-click and edit the field.
 
 
 ## INSTALLATION 🚀
@@ -139,6 +116,8 @@ If you have an idea for an improvement or new feature :rocket:, please open a [f
 ### AUTHORS & ACKNOWLEDGEMENTS
 
 *   Ed Menendez
+*   The HTMX Project
+*   Trix Project
 
 ### LICENSE
 
