@@ -1,0 +1,4 @@
+include LICENSE.txt
+include README.md
+recursive-include src/frontly/static *
+recursive-include src/frontly/templates *
