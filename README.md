@@ -62,7 +62,7 @@ By default all input is sanitized using [nh3](https://github.com/messense/nh3). 
 
 ## USAGE
 
-Using Frontly in your existing application is designed to be very simple. It's template tags are designed to be a drop-in replacement, where you would normally output the context variable in your template.
+Using Frontly in your existing application is designed to be very simple. Its template tags are designed to be a drop-in replacements where you would normally output the context variable in your template.
 
 Two things to keep in mind are:
 
